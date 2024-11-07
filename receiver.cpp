@@ -4,11 +4,12 @@
 #include <unistd.h>
 #include <cstring>
 #include <wiringPi.h>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 const int port = 8080;
-
 const int led = 5;     // GPIO5
 
 int main() {
@@ -61,15 +62,29 @@ int main() {
     cout << "Connection established.\n";
 
     // 持續接收資料
+    bool buttonPressed = false;
+    steady_clock::time_point pressTime, releaseTime;
+
     while (1) {
         int valread = read(new_socket, buffer, sizeof(buffer));
         if (valread > 0) {
-            if (buffer[0] == '1') {
-                cout << "Button is pressed.\n";
+            if (buffer[0] == '1' && !buttonPressed) {  // 按鈕被按下
+                buttonPressed = true;
+                pressTime = steady_clock::now();
                 digitalWrite(led, 1);   // LED 亮
-            } else if (buffer[0] == '0') {
+            } else if (buffer[0] == '0' && buttonPressed) {  // 按鈕被釋放
+                buttonPressed = false;
+                releaseTime = steady_clock::now();
                 digitalWrite(led, 0);   // LED 滅
-                cout << "Button is released.\n";
+
+                auto duration = duration_cast<milliseconds>(releaseTime - pressTime).count();
+
+                // 判斷摩斯密碼
+                if (duration < 200) {    // 小於 200ms 視為短按（dot）
+                    cout << ". ";
+                } else {                 // 大於等於 200ms 視為長按（dash）
+                    cout << "- ";
+                }
             }
         }
     }
