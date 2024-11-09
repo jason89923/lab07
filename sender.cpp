@@ -67,22 +67,9 @@ int main() {
             if (currentState == 1) {
                 digitalWrite(led, 1);   // LED 亮
                 sendButtonState(1);     // 傳送按下狀態
-                pressTime = steady_clock::now(); // 記錄按下的時間
             } else {
                 digitalWrite(led, 0);   // LED 滅
                 sendButtonState(0);     // 傳送放開狀態
-                releaseTime = steady_clock::now(); // 記錄釋放的時間
-
-                 // 計算按下的時間差
-                auto duration = duration_cast<milliseconds>(releaseTime - pressTime).count();
-
-                if (duration < 200) {    // 小於 200ms 視為短按（dot）
-                    printf(". ") ;
-                    fflush(stdout);
-                } else {                 // 大於等於 200ms 視為長按（dash）
-                    printf("- ") ;
-                    fflush(stdout);
-                }
             }
             prevState = currentState;
         }
