@@ -21,7 +21,7 @@ void clear(char moss[], int arr_size) {
 
 char checkMorse(char moss[]) {
     /*
-        A .-    B -...  C -.-.  D -..   
+        A .-    B -...  C -.-.  D -..
         E .     F ..-.  G --.   H ....
         I ..    J .---  K -.-   L .-..
         M --    N -.    O ---   P .--.
@@ -29,32 +29,10 @@ char checkMorse(char moss[]) {
         U ..-   V ...-  W .--   X -..-
         Y -.--  Z --..
     */
-    if (strcmp(moss, ".-") == 0) return 'A';
-    else if (strcmp(moss, "-...") == 0) return 'B';
-    else if (strcmp(moss, "-.-.") == 0) return 'C';
-    else if (strcmp(moss, "-..") == 0) return 'D';
+    if (strcmp(moss, "-.-.") == 0) return 'C';
     else if (strcmp(moss, ".") == 0) return 'E';
-    else if (strcmp(moss, "..-.") == 0) return 'F';
-    else if (strcmp(moss, "--.") == 0) return 'G';
-    else if (strcmp(moss, "....") == 0) return 'H';
     else if (strcmp(moss, "..") == 0) return 'I';
-    else if (strcmp(moss, ".---") == 0) return 'J';
-    else if (strcmp(moss, "-.-") == 0) return 'K';
-    else if (strcmp(moss, ".-..") == 0) return 'L';
-    else if (strcmp(moss, "--") == 0) return 'M';
-    else if (strcmp(moss, "-.") == 0) return 'N';
-    else if (strcmp(moss, "---") == 0) return 'O';
-    else if (strcmp(moss, ".--.") == 0) return 'P';
-    else if (strcmp(moss, "--.-") == 0) return 'Q';
-    else if (strcmp(moss, ".-.") == 0) return 'R';
-    else if (strcmp(moss, "...") == 0) return 'S';
-    else if (strcmp(moss, "-") == 0) return 'T';
-    else if (strcmp(moss, "..-") == 0) return 'U';
-    else if (strcmp(moss, "...-") == 0) return 'V';
-    else if (strcmp(moss, ".--") == 0) return 'W';
-    else if (strcmp(moss, "-..-") == 0) return 'X';
     else if (strcmp(moss, "-.--") == 0) return 'Y';
-    else if (strcmp(moss, "--..") == 0) return 'Z';
     else return '\0';
 }
 
@@ -66,19 +44,22 @@ int main() {
     char buffer[2] = {0};
     
     if (wiringPiSetup() == -1) {
-        cerr << "Failed to setup WiringPi.\n";
+        printf("\033[1;31mFailed to setup WiringPi.\033[0m\n");
+        fflush(stdout);
         return 0;
     }
 
     pinMode(led, OUTPUT);
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        cerr << "Socket failed\n";
+        printf("\033[1;31mSocket failed.\033[0m\n");
+        fflush(stdout);
         exit(1);
     }
 
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        cerr << "setsockopt failed\n";
+        printf("\033[1;31msetsockopt failed.\033[0m\n");
+        fflush(stdout);
         exit(1);
     }
     address.sin_family = AF_INET;
@@ -86,24 +67,27 @@ int main() {
     address.sin_port = htons(port);
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-        cerr << "Bind failed\n";
+        printf("\033[1;31mBind failed.\033[0m\n");
+        fflush(stdout);
         exit(1);
     }
 
     if (listen(server_fd, 3) < 0) {
-        cerr << "Listen failed\n";
+        printf("\033[1;31mListen failed.\033[0m\n");
+        fflush(stdout);
         exit(1);
     }
 
     cout << "Waiting for connection...\n";
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
-        cerr << "Accept failed\n";
+        printf("\033[1;31mAccept failed.\033[0m\n");
+        fflush(stdout);
         exit(1);
     }
 
     fcntl(new_socket, F_SETFL, O_NONBLOCK);
 
-    cout << "Connection established.\n";
+    printf("\033[1;32mConnection established.\033[0m\n");
 
     bool buttonPressed = false;
     time_point<system_clock> pressTime, releaseTime;
@@ -126,11 +110,9 @@ int main() {
                 auto duration = duration_cast<milliseconds>(releaseTime - pressTime).count();
 
                 if (duration < 200) {    // 小於 200ms 視為短按（dot）
-                    printf(".");
                     moss[count] = '.';   // dot(.)
                     count++;
                 } else {                 // 大於等於 200ms 視為長按（dash）
-                    printf("-");
                     moss[count] = '-';   // dash(-)
                     count++;
                 }
@@ -145,9 +127,9 @@ int main() {
         if (!buttonPressed && idleDuration > 500 && count > 0) {
             ans = checkMorse(moss);
             if (ans != '\0') {
-                printf("\n%c", ans);
+                printf("%c", ans);
             } else {
-                printf("Invalid Morse code sequence.\n");
+                printf("\nInvalid Morse code sequence.\n");
             }
             fflush(stdout);
             clear(moss, arr_size);
