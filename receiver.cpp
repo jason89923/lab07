@@ -111,9 +111,11 @@ int main() {
 
                 if (duration < 200) {    // 小於 200ms 視為短按（dot）
                     moss[count] = '.';   // dot(.)
+                    printf(".");
                     count++;
                 } else {                 // 大於等於 200ms 視為長按（dash）
                     moss[count] = '-';   // dash(-)
+                    printf("-");
                     count++;
                 }
                 fflush(stdout);
@@ -127,7 +129,7 @@ int main() {
         if (!buttonPressed && idleDuration > 500 && count > 0) {
             ans = checkMorse(moss);
             if (ans != '\0') {
-                printf("%c", ans);
+                printf(" -> %c\n", ans);
             } else {
                 printf("\nInvalid Morse code sequence.\n");
             }
