@@ -20,15 +20,8 @@ void clear(char moss[], int arr_size) {
 }
 
 char checkMorse(char moss[]) {
-    /*
-        A .-    B -...  C -.-.  D -..
-        E .     F ..-.  G --.   H ....
-        I ..    J .---  K -.-   L .-..
-        M --    N -.    O ---   P .--.
-        Q --.-  R .-.   S ...   T -
-        U ..-   V ...-  W .--   X -..-
-        Y -.--  Z --..
-    */
+    // 修改此function，轉換摩斯密碼為英文或數字
+    
     if (strcmp(moss, "-.-.") == 0) return 'C';
     else if (strcmp(moss, ".") == 0) return 'E';
     else if (strcmp(moss, "..") == 0) return 'I';
